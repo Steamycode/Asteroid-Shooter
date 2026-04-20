@@ -12,7 +12,6 @@ ship_img = pygame.image.load('assets/sprites/spaceship.png')
 medium_asteroid_img = pygame.image.load('assets/sprites/asteroid.png')
 big_asteroid_img = pygame.transform.scale(medium_asteroid_img, (150, 150))
 small_asteroid_img = pygame.transform.scale(medium_asteroid_img, (50, 50))
-bullet_img = pygame.image.load('assets/sprites/bullet.png')
 
 shoot_sound = pygame.mixer.Sound('assets/sounds/laser.mp3')
 explosion_sound = pygame.mixer.Sound('assets/sounds/explosion.mp3')
