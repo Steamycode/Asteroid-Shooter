@@ -1,11 +1,11 @@
 import pygame
 import random
-from assets import AssetManager
-from asteroids import AsteroidFactory
-from bullet import Bullet
-from player import Player
-from collision import Collision
-from game_state import GameState
+from scripts.assets import AssetManager
+from scripts.asteroids import AsteroidFactory
+from scripts.bullet import Bullet
+from scripts.player import Player
+from scripts.collision import Collision
+from scripts.game_state import GameState
 
 pygame.display.set_caption('Asteroid Shooter')
 
