@@ -1,5 +1,5 @@
-from asteroids import AsteroidFactory
-from assets import AssetManager
+from scripts.asteroids import AsteroidFactory
+from scripts.assets import AssetManager
 
 
 class Collision:
