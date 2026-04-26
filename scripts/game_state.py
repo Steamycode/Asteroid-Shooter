@@ -5,6 +5,7 @@ class GameState:
     def __init__(self):
         self._run = True
         self._gameover = False
+        self._first_launch = True
         self._lives = 3
         self._score = 0
         self._sound_on = True
@@ -26,6 +27,14 @@ class GameState:
     @gameover.setter
     def gameover(self, value):
         self._gameover = value
+
+    @property
+    def first_launch(self):
+        return self._first_launch
+    
+    @first_launch.setter
+    def first_launch(self, value):
+        self._first_launch = value
     
     @property
     def lives(self):
@@ -87,5 +96,4 @@ class GameState:
         self.gameover = False
         self.lives = 3
         self.score = 0
-        self.sound_on = True
         self.count = 0
