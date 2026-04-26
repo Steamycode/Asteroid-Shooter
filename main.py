@@ -107,6 +107,7 @@ class Game:
     def update_gui(self):
         self._lives_txt = self.font.render(f'Lives: {self.game_state.lives}', 1, (255, 255, 255))
         self._restart_txt = self.font.render('Press Tab to Play Again', 1, (255, 255, 255))
+        self._mute_txt = self.font.render('Mute', 1, (255, 255, 255))
         self._score_txt = self.font.render(f'Score: {self.game_state.score}', 1, (255, 255, 255))
         self._high_score_txt = self.font.render(f'High Score: {self.game_state.high_score}', 1, (255, 255, 255))
         self._restart_position = (self.assets.screen_width // 2 - self.restart_txt.get_width() // 2,
@@ -127,6 +128,9 @@ class Game:
 
         if self.game_state.gameover:
             self.window.blit(self.restart_txt, self.restart_position)
+
+        if not self.game_state.sound_on:
+           self.window.blit(self._mute_txt, (25, 50))
 
         self.window.blit(self.score_txt, self.score_position)
         self.window.blit(self.high_score_txt, self.high_score_position)
