@@ -11,35 +11,98 @@ class Asteroid(GameObject):
         self._width = 0
         self._height = 0
         self._assets = AssetManager()
-        self._random_spawn_location(self._assets._screen_width, self._assets._screen_height)
-        self._set_velocity(self._assets._screen_width, self._assets._screen_height)
+        self.random_spawn_location(self.assets.screen_width, self.assets.screen_height)
+        self.set_velocity(self.assets.screen_width, self.assets.screen_height)
 
-    def _random_spawn_location(self, width, height):
-        self._ran_point = random.choice([(random.randrange(0, width + self._width), 
-                                          random.choice([-self._height - 50, height + 5])),
-                                          (random.choice([-self._width - 50, width + 5]),
-                                           random.randrange(0, height + self._height))])
-        self._x, self._y = self._ran_point
+    @property
+    def x(self):
+        return self._x
+    
+    @x.setter
+    def x(self, value):
+        self._x = value
+    
+    @property
+    def x_direction(self):
+        return self._x_direction
+    
+    @property
+    def x_velocity(self):
+        return self._x_velocity
+    
+    @property
+    def y(self):
+        return self._y
+    
+    @y.setter
+    def y(self, value):
+        self._y = value
 
-    def _set_velocity(self, width, height):      
-        if self._x < width // 2:
-            self.x_direction = 1
+    @property
+    def y_velocity(self):
+        return self._y_velocity
+    
+    @property
+    def y_direction(self):
+        return self._y_direction
+
+    @property
+    def rank(self):
+        return self._rank
+    
+    @property
+    def image(self):
+        return self._image
+    
+    @property
+    def ran_point(self):
+        return self._ran_point
+
+    @property
+    def width(self):
+        return self._width
+    
+    @property
+    def height(self):
+        return self._height
+    
+    @property
+    def assets(self):
+        return self._assets
+
+
+    def random_spawn_location(self, width, height):
+        self._ran_point = random.choice([(random.randrange(0, width + self.width), 
+                                          random.choice([-self.height - 50, height + 5])),
+                                          (random.choice([-self.width - 50, width + 5]),
+                                           random.randrange(0, height + self.height))])
+        self._x, self._y = self.ran_point
+
+    def set_velocity(self, width, height):      
+        if self.x < width // 2:
+            self._x_direction = 1
         else:
-            self.x_direction = -1
-        if self._y < height // 2:
-            self.y_direction = 1
+            self._x_direction = -1
+        if self.y < height // 2:
+            self._y_direction = 1
         else:
-            self.y_direction = -1
-        self.x_velocity = self.x_direction * random.randrange(1, 3)
-        self.y_velocity = self.y_direction * random.randrange(1, 3)
+            self._y_direction = -1
+        self._x_velocity = self.x_direction * random.randrange(1, 3)
+        self._y_velocity = self.y_direction * random.randrange(1, 3)
 
     def move(self):
-        self._x += self.x_velocity
-        self._y += self.y_velocity
+        self.x += self.x_velocity
+        self.y += self.y_velocity
 
     def draw(self, win):
         super().draw(win)
-        win.blit(self._image, (self._x, self._y))
+        win.blit(self.image, (self.x, self.y))
+
+    def check_off_screen(self):
+        if (self.x < -50 or self.x > self.assets.screen_width or 
+            self.y > self.assets.screen_height or self.y < -50):
+            return True
+        return False
 
 
 class BigAsteroid(Asteroid):
@@ -47,7 +110,7 @@ class BigAsteroid(Asteroid):
     def __init__(self):
         super().__init__()
         self._rank = 3
-        self._image = self._assets.big_asteroid_img
+        self._image = self.assets.big_asteroid_img
         self._width = 150
         self._height = 150
 
@@ -57,7 +120,7 @@ class MediumAsteroid(Asteroid):
     def __init__(self):
         super().__init__()
         self._rank = 2
-        self._image = self._assets.medium_asteroid_img
+        self._image = self.assets.medium_asteroid_img
         self._width = 100
         self._height = 100
 
@@ -67,14 +130,15 @@ class SmallAsteroid(Asteroid):
     def __init__(self):
         super().__init__()
         self._rank = 1
-        self._image = self._assets.small_asteroid_img
+        self._image = self.assets.small_asteroid_img
         self._width = 50
         self._height = 50
 
 
 class AsteroidFactory:
     
-    def create_asteroid(self, rank):
+    @staticmethod
+    def create_asteroid(rank):
         if rank == 3:
             return BigAsteroid()
         elif rank == 2:
