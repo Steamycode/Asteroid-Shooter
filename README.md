@@ -266,7 +266,7 @@ def save_high_score(self, score):
 
 - **Aggregation**: Multiple classes aggregate different components
 
-- **Testing**: 59 unit tests that pass. **Challanges**: coming up with tests.
+- **Testing**: 35 unit tests that pass. **Challanges**: coming up with tests.
 
 - **Data Persistence**: CSV-based high score storage with error handling.
 
@@ -279,7 +279,7 @@ def save_high_score(self, score):
 1. **Working Game**: A functional asteroids game with score tracking, high scores, sound effects, and collision detection
 2. **Better Understanding of OOP Pillars** inheritance for reuse, polymorphism for flexibility, encapsulation for data integrity, abstraction for simplicity
 3. **Using Cleaner Architecture**: Separating classes with different responsibilities into files
-4. **Ensuring Quality**: 59 passing tests
+4. **Ensuring Quality**: 35 passing tests
 
 ---
 
