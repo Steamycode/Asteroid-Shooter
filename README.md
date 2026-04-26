@@ -85,7 +85,6 @@ class Asteroid(GameObject):
         self.random_spawn_location(self.assets.screen_width, self.assets.screen_height)
         self.set_velocity(self.assets.screen_width, self.assets.screen_height)
 
-
 class BigAsteroid(Asteroid):
 
     def __init__(self):
@@ -114,7 +113,6 @@ class Player(GameObject):
         self.x += self.cos * 6
         self.y -= self.sin * 6
         self.update_position()
-
 
 class Asteroid(GameObject):
 
@@ -169,7 +167,6 @@ class GameObject(ABC):
     def move(self, win):
         pass
 
-
 class Game:
 
     def run(self):
@@ -219,6 +216,7 @@ Game class aggregates multiple components:
 
 ```python
 class Game:
+
     def __init__(self):
         self._assets = AssetManager()
         self._game_state = GameState()
