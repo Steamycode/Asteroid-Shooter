@@ -5,7 +5,7 @@ OOP Coursework
 
 ### 1.1 What is the Application?
 
-**Asteroid Shooter** is a classic Atari "Asteroids" inspired video game where the player controls a spaceship and destroys asteroids.
+**Asteroid Shooter** is an Atari "Asteroids" inspired video game where the player controls a spaceship and destroys asteroids.
 
 ### 1.2 How to Run the Program
 
@@ -26,7 +26,7 @@ python3 -m pip install pygame
 py -m pip install pygame
 ```
 
-- To run
+- To run:
 ```bash
 python main.py
 ```
@@ -41,7 +41,7 @@ python main.py
 |   m   | Toggle sound |
 |  TAB  | Restart game |
 
-**Gameplay** You start with 3 lives, each time you get hit by an asteroid you loose life, when shooting down an asteroid you score, and the asteroid splits into two smaller ones.
+**Gameplay**: You start with 3 lives, each time you get hit by an asteroid you loose life, when shooting down an asteroid you score, and the asteroid splits into two smaller ones.
 
 **Scoring**: Small (30pts) → Medium (20pts) → Big (10pts)
 
@@ -49,12 +49,15 @@ python main.py
 
 ## 2. Body/Analysis
 
-### 2.1 Inheritance
+### 2.1 OOP pillars
+
+#### 2.1.1 Inheritance
 
 All game object inherit from an abstract base class:
 
 ```python
 class GameObject(ABC):
+
     @abstractmethod
     def draw(self, win):
         pass
@@ -62,7 +65,6 @@ class GameObject(ABC):
     @abstractmethod
     def move(self, win):
         pass
-
 ```
 
 Different size asteroids inherit from main asteroid class:
@@ -79,6 +81,7 @@ class Asteroid(GameObject):
         self.random_spawn_location(self.assets.screen_width, self.assets.screen_height)
         self.set_velocity(self.assets.screen_width, self.assets.screen_height)
 
+
 class BigAsteroid(Asteroid):
 
     def __init__(self):
@@ -93,75 +96,95 @@ class BigAsteroid(Asteroid):
 
 ---
 
-### 2.2 Polymorphism
+#### 2.1.2 Polymorphism
 
 Each subclass implements `draw()` and `move()` differently:
 
 ```python
 class Player(GameObject):
+
     def draw(self, win):
         win.blit(self._rotated, self._rotated_rect)
+    
+    def move(self):
+        self.x += self.cos * 6
+        self.y -= self.sin * 6
+        self.update_position()
+
 
 class Asteroid(GameObject):
+
     def draw(self, win):
         win.blit(self._image, (self._x, self._y))
-```
-
-Used polymorphically in game loop:
-```python
-for obj in [self._player] + self._asteroids + self._player.bullets:
-    obj.draw(self._window)  # Calls appropriate draw() method
+    
+    def move(self):
+        self.x += self.x_velocity
+        self.y += self.y_velocity
 ```
 
 ---
 
-### 2.3 Encapsulation
+#### 2.1.3 Encapsulation
 
 Private attributes protected with property access:
 
 ```python
-class Player(GameObject):
+class GameState:
+
     def __init__(self):
-        self._x = 0
-        self._angle = 0
-        self._bullets = []
+        self._lives = 3
+        self._score = 0
+        self._sound_on = True
     
     @property
-    def angle(self):
-        return self._angle
+    def sound_on(self):
+        return self._sound_on
     
-    def lose_life(self):
-        self._lives -= 1
-        if self._lives <= 0:
-            self._gameover = True  # State automatically updated
+    @sound_on.setter
+    def sound_on(self, value):
+        self._sound_on = value
+    
+    def toggle_sound(self):
+        self.sound_on = not self.sound_on
 ```
 
 ---
 
-### 2.4 Abstraction
+#### 2.1.4 Abstraction
 
 Hides complexity behind simple interfaces:
 
 ```python
 class GameObject(ABC):
+
     @abstractmethod
-    def draw(self, win):  # Forces subclasses to implement
+    def draw(self, win):
         pass
 
-class AssetManager:
-    @property
-    def WIDTH(self):  # Hides internal screen dimensions
-        return self._screen_width
+    @abstractmethod
+    def move(self, win):
+        pass
+
+
+class Game:
+
+    def run(self):
+        while self.game_state.run:
+            self.update_gui()
+            self.game_events()
+            self.draw_window()
 ```
 
 ---
 
-### 2.5 Design Pattern: Factory Method
+### 2.2 Design patterns 
 
 `AsteroidFactory` creates different asteroid types:
 
 ```python
 class AsteroidFactory:
+
+    @staticmethod
     def create_asteroid(self, rank):
         if rank == 3:
             return BigAsteroid()
@@ -169,45 +192,60 @@ class AsteroidFactory:
             return MediumAsteroid()
         elif rank == 1:
             return SmallAsteroid()
+```
 
-# Usage:
-new_asteroid = self._asteroid_factory.create_asteroid(rank)
+`AssetManager` ensures theres only one asset manager instance:
+
+```python
+class AssetManager:
+        
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 ```
 
 ---
 
-### 2.6 Composition
+### 2.3 Composition/Aggregation
 
 Game class aggregates multiple components:
 
 ```python
 class Game:
     def __init__(self):
-        self._assets = AssetManager()          # Asset management
-        self._game_state = GameState()         # Score & lives
-        self._player = Player()                # Player control
-        self._collision = Collision()          # Collision detection
-        self._asteroids = []                   # Asteroid list
-        self._asteroid_factory = AsteroidFactory()  # Creation
+        self._assets = AssetManager()
+        self._game_state = GameState()
+        self._player = Player()
+        self._collision = Collision()
+        self._asteroids = []
+        self._asteroid_factory = AsteroidFactory()
 ```
 
 ---
 
-### 2.7 Data Persistence
+### 2.4 Reading from/writing to file
 
 High scores saved to `scores.csv`:
 
 ```python
 def load_high_score(self):
     try:
-        with open('scores.csv', 'r') as f:
-            self._game_state._high_score = int(f.readline().strip())
-    except:
-        self._game_state._high_score = 0
+        with open('scores.csv', 'r') as score_file:
+            self.game_state.high_score = int(score_file.readline().strip())
+    except (FileNotFoundError, ValueError):
+        print('Error loading scores file')
+        self.game_state.high_score = 0
 
 def save_high_score(self, score):
-    with open('scores.csv', 'w') as f:
-        f.write(str(score))
+    try:
+        with open('scores.csv', 'w') as score_file:
+            score_file.write(str(score))
+            self.game_state.high_score = score
+    except (FileNotFoundError, ValueError):
+        print(f'Error saving high score: {score}')
 ```
 
 ---
@@ -218,17 +256,17 @@ def save_high_score(self, score):
 
 **All Requirements Successfully Implemented:**
 
-- **Fully Functional Game**: Complete, playable asteroid shooter with all mechanics working (spaceship control, collision detection, scoring, lives system).
+- **Functional Game**: Complete, playable asteroid shooter with all mechanics working (spaceship control, collision detection, scoring, lives system).
 
 - **OOP Principles**: All four pillars (Inheritance, Polymorphism, Encapsulation, Abstraction) properly integrated.
 
 - **Design Patterns**: Factory Method pattern in `AsteroidFactory` handles different asteroid types. Singleton pattern in `AssetManager` manages resources.
 
-- **Composition**: 
+- **Aggregation**: Multiple classes aggregate different components
 
-- **Testing**: 59 unit tests that pass.
+- **Testing**: 59 unit tests that pass. **Challanges**: coming up with tests.
 
-- **Data Persistence**: CSV-based high score storage with error handling. **Challenge**: Coordinating interactions between components.
+- **Data Persistence**: CSV-based high score storage with error handling.
 
 ---
 
@@ -236,12 +274,10 @@ def save_high_score(self, score):
 
 **What Was Achieved:**
 
-1. **Working Game**: Fully functional asteroids game with score tracking, high scores, sound effects, and collision detection
-2. **Clean Architecture**: Proper separation of concerns with each class having a single responsibility
-3. **OOP Integration**: All four pillars working cohesively (inheritance for reuse, polymorphism for flexibility, encapsulation for data integrity, abstraction for simplicity)
-4. **Quality Assurance**: 59 passing tests.
-5. **Industry Standards**: Factory Method and Singleton patterns properly implemented
-
+1. **Working Game**: A functional asteroids game with score tracking, high scores, sound effects, and collision detection
+2. **Better Understanding of OOP Pillars** inheritance for reuse, polymorphism for flexibility, encapsulation for data integrity, abstraction for simplicity
+3. **Using Cleaner Architecture**: Separating classes with different responsibilities into files
+4. **Ensuring Quality**: 59 passing tests
 
 ---
 
