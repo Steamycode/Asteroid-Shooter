@@ -139,7 +139,7 @@ class Game:
 
         for bullet in self.player.bullets:
             bullet.move()
-            if bullet.check_off_screen():
+            if bullet.check_off_screen(self.assets.screen_width, self.assets.screen_height):
                 self.player.bullets.pop(self.player.bullets.index(bullet))
                 continue
         
@@ -153,7 +153,7 @@ class Game:
                 self.game_state.lose_life()
                 self.asteroids.pop(self.asteroids.index(asteroid))
                 continue
-            elif asteroid.check_off_screen():
+            elif asteroid.check_off_screen(self.assets.screen_width, self.assets.screen_height):
                 self.asteroids.pop(self.asteroids.index(asteroid))
                 continue
 
