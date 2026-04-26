@@ -5,12 +5,29 @@ OOP Coursework
 
 ### 1.1 What is the Application?
 
-**Asteroid Shooter** is a game inspired by classic Atari "Asteroids" video game where the player controls a spaceship and destroys asteroids.
+**Asteroid Shooter** is a classic Atari "Asteroids" inspired video game where the player controls a spaceship and destroys asteroids.
 
 ### 1.2 How to Run the Program
 
+- To install pygame, try any of the following commands in cmd:
 ```bash
 pip install pygame
+```
+```bash
+python -m pip install pygame
+```
+```bash
+pip3 install pygame
+```
+```bash
+python3 -m pip install pygame
+```
+```bash
+py -m pip install pygame
+```
+
+- To run
+```bash
 python main.py
 ```
 
@@ -24,7 +41,9 @@ python main.py
 |   m   | Toggle sound |
 |  TAB  | Restart game |
 
-**Scoring**: Small (30pts) → Medium (20pts) → Big (10pts). 3 lives. High score saves automatically.
+**Gameplay** You start with 3 lives, each time you get hit by an asteroid you loose life, when shooting down an asteroid you score, and the asteroid splits into two smaller ones.
+
+**Scoring**: Small (30pts) → Medium (20pts) → Big (10pts)
 
 ---
 
@@ -32,13 +51,42 @@ python main.py
 
 ### 2.1 Inheritance
 
-All drawable objects inherit from an abstract base class:
+All game object inherit from an abstract base class:
 
 ```python
 class GameObject(ABC):
     @abstractmethod
     def draw(self, win):
         pass
+
+    @abstractmethod
+    def move(self, win):
+        pass
+
+```
+
+Different size asteroids inherit from main asteroid class:
+
+```python
+class Asteroid(GameObject):
+    
+    def __init__(self):
+        self._rank = 0
+        self._image = None
+        self._width = 0
+        self._height = 0
+        self._assets = AssetManager()
+        self.random_spawn_location(self.assets.screen_width, self.assets.screen_height)
+        self.set_velocity(self.assets.screen_width, self.assets.screen_height)
+
+class BigAsteroid(Asteroid):
+
+    def __init__(self):
+        super().__init__()
+        self._rank = 3
+        self._image = self.assets.big_asteroid_img
+        self._width = 150
+        self._height = 150
 ```
 
 **Subclasses**: `Player`, `Bullet`, `BigAsteroid`, `MediumAsteroid`, `SmallAsteroid`
@@ -47,7 +95,7 @@ class GameObject(ABC):
 
 ### 2.2 Polymorphism
 
-Each subclass implements `draw()` differently:
+Each subclass implements `draw()` and `move()` differently:
 
 ```python
 class Player(GameObject):
