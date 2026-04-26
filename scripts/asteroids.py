@@ -98,9 +98,9 @@ class Asteroid(GameObject):
         super().draw(win)
         win.blit(self.image, (self.x, self.y))
 
-    def check_off_screen(self):
-        if (self.x < -50 or self.x > self.assets.screen_width or 
-            self.y > self.assets.screen_height or self.y < -50):
+    def check_off_screen(self, width, height):
+        if (self.x < -50 or self.x > width or 
+            self.y > height or self.y < -50):
             return True
         return False
 
