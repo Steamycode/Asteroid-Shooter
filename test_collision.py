@@ -69,6 +69,7 @@ class TestCollision(unittest.TestCase):
         
         self.collision.handle_bullet_asteroid_collision(self.player, bullet, asteroid, asteroids, self.game_state)
         
+        # Big asteroid should be replaced with 2 medium asteroids
         self.assertEqual(len(asteroids), initial_asteroids + 1)  # 1 removed, 2 added
         self.assertEqual(self.game_state.score, initial_score + 10)
         self.assertEqual(len(self.player.bullets), 0)  # Bullet removed
