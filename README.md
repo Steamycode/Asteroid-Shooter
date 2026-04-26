@@ -1,4 +1,4 @@
-# Asteroid-Shooter
+# Asteroid Shooter
 OOP Coursework
 
 ## 1. Introduction
