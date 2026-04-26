@@ -18,7 +18,7 @@ class Game:
         self._player = Player()
         self._collision = Collision()
         self._asteroid_factory = AsteroidFactory()
-        self._window = pygame.display.set_mode((self._assets._screen_width, self._assets._screen_height))
+        self._window = pygame.display.set_mode((self.assets.screen_width, self.assets.screen_height))
         self._clock = pygame.time.Clock()
         self.load_high_score()
         self._font = pygame.font.SysFont('calibri', 30)
@@ -71,120 +71,141 @@ class Game:
     @property
     def high_score_txt(self):
         return self._high_score_txt
+    
+    @property
+    def font(self):
+        return self._font
+    
+    @property
+    def restart_position(self):
+        return self._restart_position
+    
+    @property
+    def high_score_position(self):
+        return self._high_score_position
+    
+    @property
+    def score_position(self):
+        return self._score_position
 
     def load_high_score(self):
         try:
             with open('scores.csv', 'r') as score_file:
-                self._game_state._high_score = int(score_file.readline().strip())
+                self.game_state.high_score = int(score_file.readline().strip())
         except (FileNotFoundError, ValueError):
             print('Error loading scores file')
-            self._game_state._high_score = 0
+            self.game_state.high_score = 0
 
     def save_high_score(self, score):
         try:
             with open('scores.csv', 'w') as score_file:
                 score_file.write(str(score))
-                self._game_state._high_score = score
+                self.game_state.high_score = score
         except (FileNotFoundError, ValueError):
             print(f'Error saving high score: {score}')
 
     def update_gui(self):
-        self._lives_txt = self._font.render(f'Lives: {self._game_state.lives}', 1, (255, 255, 255))
-        self._restart_txt = self._font.render('Press Tab to Play Again', 1, (255, 255, 255))
-        self._score_txt = self._font.render(f'Score: {self._game_state.score}', 1, (255, 255, 255))
-        self._high_score_txt = self._font.render(f'High Score: {self._game_state.high_score}', 1, (255, 255, 255))
-        self._restart_position = (self._assets._screen_width // 2 - self._restart_txt.get_width() // 2,
-                                  self._assets._screen_height // 2 - self._restart_txt.get_height() // 2)
-        self._high_score_position = (self._assets._screen_width - self._high_score_txt.get_width() - 25,
-                                     35 + self._score_txt.get_height())
-        self._score_position = (self._assets._screen_width - self._score_txt.get_width() - 25, 25)
+        self._lives_txt = self.font.render(f'Lives: {self.game_state.lives}', 1, (255, 255, 255))
+        self._restart_txt = self.font.render('Press Tab to Play Again', 1, (255, 255, 255))
+        self._score_txt = self.font.render(f'Score: {self.game_state.score}', 1, (255, 255, 255))
+        self._high_score_txt = self.font.render(f'High Score: {self.game_state.high_score}', 1, (255, 255, 255))
+        self._restart_position = (self.assets.screen_width // 2 - self.restart_txt.get_width() // 2,
+                                  self.assets.screen_height // 2 - self.restart_txt.get_height() // 2)
+        self._high_score_position = (self.assets.screen_width - self.high_score_txt.get_width() - 25,
+                                     35 + self.score_txt.get_height())
+        self._score_position = (self.assets.screen_width - self.score_txt.get_width() - 25, 25)
 
     def draw_window(self):
-        self._window.blit(self._assets.bg_img, (0, 0))
-        self._player.draw(self._window)
+        self.window.blit(self.assets.bg_img, (0, 0))
+        self.player.draw(self.window)
         
-        for asteroid in self._asteroids:
-            asteroid.draw(self._window)
+        for asteroid in self.asteroids:
+            asteroid.draw(self.window)
 
-        for bullet in self._player.bullets:
-            bullet.draw(self._window)
+        for bullet in self.player.bullets:
+            bullet.draw(self.window)
 
-        if self._game_state.gameover:
-            self._window.blit(self._restart_txt, self._restart_position)
+        if self.game_state.gameover:
+            self.window.blit(self.restart_txt, self.restart_position)
 
-        self._window.blit(self._score_txt, self._score_position)
-        self._window.blit(self._high_score_txt, self._high_score_position)
-        self._window.blit(self._lives_txt, (25, 25))
+        self.window.blit(self.score_txt, self.score_position)
+        self.window.blit(self.high_score_txt, self.high_score_position)
+        self.window.blit(self.lives_txt, (25, 25))
         
         pygame.display.update()
 
     def update_game_state(self):
-        self._player.update_location(self._assets._screen_width, self._assets._screen_height)
+        self.player.check_off_screen(self.assets.screen_width, self.assets.screen_height)
 
-        for bullet in self._player.bullets:
+        for bullet in self.player.bullets:
             bullet.move()
             if bullet.check_off_screen():
-                self._player.bullets.pop(self._player.bullets.index(bullet))
+                self.player.bullets.pop(self.player.bullets.index(bullet))
+                continue
         
-        for asteroid in self._asteroids:
+        for asteroid in self.asteroids:
             asteroid.move()
-            if self._collision._check_player_collision(asteroid, self._player):
-                self._game_state.lose_life()
-                self._asteroids.pop(self._asteroids.index(asteroid))
-                break
-            if self._collision._check_bullet_collision(asteroid, self._asteroids, self._player, self._game_state):
-                self._collision._handle_bullet_asteroid_collision(self._player, bullet, asteroid, self._asteroids, self._game_state)
-                break
+            colliding_bullet = self.collision.check_bullet_collision(asteroid, self.player)
+            if colliding_bullet:
+                self.collision.handle_bullet_asteroid_collision(self.player, colliding_bullet, asteroid, self.asteroids, self.game_state)
+                continue
+            elif self.collision.check_player_collision(asteroid, self.player):
+                self.game_state.lose_life()
+                self.asteroids.pop(self.asteroids.index(asteroid))
+                continue
+            elif asteroid.check_off_screen():
+                self.asteroids.pop(self.asteroids.index(asteroid))
+                continue
 
     def game_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                if self._game_state.score > self._game_state.high_score:
-                    self.save_high_score(self._game_state.score)
-                self._game_state.run = False
+                if self.game_state.score > self.game_state.high_score:
+                    self.save_high_score(self.game_state.score)
+                self.game_state.run = False
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not self._game_state.gameover:
-                    self._player.fire(Bullet(self._player._head[0], self._player._head[1], self._player._cos, self._player._sin))
-                    if self._game_state.sound_on:
-                        self._assets.shoot_sound.play()
+                if event.key == pygame.K_SPACE and not self.game_state.gameover:
+                    self.player.fire(Bullet(self.player.head[0], self.player.head[1], self.player.cos, self.player.sin))
+                    if self.game_state.sound_on:
+                        self.assets.shoot_sound.play()
 
                 if event.key == pygame.K_m:
-                    self._game_state.toggle_sound()
+                    self.game_state.toggle_sound()
 
                 if event.key == pygame.K_TAB:
-                    if self._game_state.gameover:
-                        if self._game_state.score > self._game_state.high_score:
-                            self.save_high_score(self._game_state.score)
-                        self._player._x = self._assets._screen_width // 2
-                        self._player._y = self._assets._screen_height // 2
-                        self._player._angle = 0
-                        self._player.update_rotation(0)
-                        self._game_state.restart()
-                        self._asteroids.clear()
-                        self._player.bullets.clear()
+                    if self.game_state.gameover:
+                        if self.game_state.score > self.game_state.high_score:
+                            self.save_high_score(self.game_state.score)
+                        self.player.x = self.assets.screen_width // 2
+                        self.player.y = self.assets.screen_height // 2
+                        self.player.angle = 0
+                        self.player.update_rotation(0)
+                        self.game_state.restart()
+                        self.asteroids.clear()
+                        self.player.bullets.clear()
 
     def handle_player_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            self._player.turn_left()
+            self.player.turn_left()
         if keys[pygame.K_RIGHT]:
-            self._player.turn_right()
+            self.player.turn_right()
         if keys[pygame.K_UP]:
-            self._player.move_forward()
+            self.player.move()
 
     def spawn_asteroid(self):
         rank = random.choice([1, 1, 1, 2, 2, 3])
-        new_asteroid = self._asteroid_factory.create_asteroid(rank)
-        self._asteroids.append(new_asteroid)
+        new_asteroid = self.asteroid_factory.create_asteroid(rank)
+        self.asteroids.append(new_asteroid)
 
     def run(self):
-        while self._game_state.run:
-            self._clock.tick(60)
-            self._game_state.count += 1
+        while self.game_state.run:
+            self.clock.tick(60)
+            self.game_state.count += 1
 
-            if not self._game_state.gameover:
-                if self._game_state.count % 50 == 0:
+            if not self.game_state.gameover:
+                if self.game_state.count % 50 == 0:
                     self.spawn_asteroid()
 
                 self.update_game_state()
