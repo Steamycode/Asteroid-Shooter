@@ -1,6 +1,6 @@
 import random
-from assets import AssetManager
-from game_object import GameObject
+from scripts.assets import AssetManager
+from scripts.game_object import GameObject
 
 
 class Asteroid(GameObject):
