@@ -1,4 +1,4 @@
-from assets import AssetManager
+from scripts.assets import AssetManager
 
 class GameState:
 
