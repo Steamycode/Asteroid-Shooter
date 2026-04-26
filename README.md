@@ -65,6 +65,10 @@ class GameObject(ABC):
     @abstractmethod
     def move(self, win):
         pass
+
+    @abstractmethod
+    def check_off_screen(self):
+        pass
 ```
 
 Different size asteroids inherit from main asteroid class:
@@ -98,7 +102,7 @@ class BigAsteroid(Asteroid):
 
 #### 2.1.2 Polymorphism
 
-Each subclass implements `draw()` and `move()` differently:
+Each subclass implements `draw()`, `move()`, `check_off_screen()` differently:
 
 ```python
 class Player(GameObject):
