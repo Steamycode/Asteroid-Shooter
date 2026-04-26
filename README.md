@@ -43,7 +43,7 @@ python main.py
 
 **Gameplay**: You start with 3 lives, each time you get hit by an asteroid you loose life, when shooting down an asteroid you score, and the asteroid splits into two smaller ones.
 
-**Scoring**: Small (30pts) → Medium (20pts) → Big (10pts)
+**Scoring**: Big (10pts) → Medium (20pts) → Small (30pts)
 
 ---
 
